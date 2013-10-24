@@ -8,7 +8,6 @@
 #include <complex>
 #include <vector>
 
-#include "FFTStrategy.h"
 #include "IterativeFFT.h"
 
 std::vector<std::complex<float> > IterativeFFT::fft(
