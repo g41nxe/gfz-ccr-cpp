@@ -8,7 +8,6 @@
 #include <complex>
 #include <vector>
 
-#include "FFTStrategy.h"
 #include "RecursiveFFT.h"
 
 std::vector<std::complex<float> > RecursiveFFT::fft(std::vector<std::complex<float> > a) {

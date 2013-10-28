@@ -1,12 +1,14 @@
 /*
- * IterativeFFT.h
+ * RecursiveFFT.h
  *
  *  Created on: 23.09.2013
  *      Author: Dan
  */
 
-#ifndef ITERATIVEFFT_H_
-#define ITERATIVEFFT_H_
+#ifndef RECURSIVEFFT_H_
+#define RECURSIVEFFT_H_
+
+#include "FFTStrategy.h"
 
 class RecursiveFFT : public FFTStrategy
 {
@@ -17,4 +19,4 @@ public:
 	std::vector<std::complex<float> > ifft(std::vector<std::complex<float> >);
 };
 
-#endif /* ITERATIVEFFT_H_ */
+#endif /* RECURSIVEFFT_H_ */

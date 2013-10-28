@@ -45,7 +45,7 @@ std::vector<float> FourierCCR::ccr(std::vector<float> a, std::vector<float> b) {
 	return res;
 }
 
-void FourierCCR::changeStrategy(FFTStrategy* s) {
+void FourierCCR::changeStrategy(FFTStrategy *s) {
 	fft = s;
 }
 

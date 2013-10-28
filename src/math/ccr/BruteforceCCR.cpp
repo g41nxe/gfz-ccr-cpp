@@ -6,45 +6,40 @@
  */
 
 #include <vector>
-#include "CCRStrategy.h"
+#include "BruteforceCCR.h"
 
-class BruteforceCCR : public CCRStrategy {
-public:
-	BruteforceCCR() {}
+std::vector<float> BruteforceCCR::ccr(std::vector<float> a, std::vector<float> b) {
+	using namespace std;
 
-	std::vector<float> ccr(std::vector<float> a, std::vector<float> b) {
-		using namespace std;
+	vector<float> c;
 
-		vector<float> c;
-
-		for (int i = -b.size() + 1; i < (int) b.size(); i++) {
-			c.push_back(dot(a, shift(b, i)));
-		}
-		return c;
+	for (int i = -b.size() + 1; i < (int) b.size(); i++) {
+		c.push_back(dot(a, shift(b, i)));
 	}
 
-private:
-	static std::vector<float> shift(std::vector<float> a, int s) {
-		using namespace std;
+	return c;
+}
 
-		vector<float> c(a.size());
+std::vector<float> BruteforceCCR::shift(std::vector<float> a, int s) {
+	using namespace std;
 
-		for (unsigned int i = 0; i < c.size(); i++) {
-			if ((s + i >= 0) && (s + i < a.size()))
-				c[i] = a[s + i];
-		}
+	vector<float> c(a.size());
 
-		return c;
+	for (unsigned int i = 0; i < c.size(); i++) {
+		if ((s + i >= 0) && (s + i < a.size()))
+			c[i] = a[s + i];
 	}
 
-	static float dot(std::vector<float> a, std::vector<float> b) {
+	return c;
+}
 
-		float sum = 0;
-		for (unsigned int i = 0; i < a.size(); i++) {
-			sum += a[i] * b[i];
-		}
+float BruteforceCCR::dot(std::vector<float> a, std::vector<float> b) {
 
-		return sum;
-
+	float sum = 0;
+	for (unsigned int i = 0; i < a.size(); i++) {
+		sum += a[i] * b[i];
 	}
-};
+
+	return sum;
+}
+

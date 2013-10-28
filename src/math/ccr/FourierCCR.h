@@ -15,12 +15,11 @@ class FourierCCR : public CCRStrategy {
 
 public:
 	FourierCCR(FFTStrategy *s);
-	void changeStrategy(FFTStrategy* s);
+	void changeStrategy(FFTStrategy *s);
 	std::vector<float> ccr(std::vector<float>, std::vector<float>);
 
 	static std::vector<std::complex<float> > mul(
-		std::vector<std::complex<float> >,
-		std::vector<std::complex<float> >);
+		std::vector<std::complex<float> >, std::vector<std::complex<float> >);
 
 private:
 	FFTStrategy *fft;
