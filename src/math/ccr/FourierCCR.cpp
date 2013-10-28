@@ -8,6 +8,7 @@
 #include <vector>
 #include <complex>
 
+#include "../fft/FFTStrategy.h"
 #include "FourierCCR.h"
 
 FourierCCR::FourierCCR(FFTStrategy *s) {
@@ -35,9 +36,9 @@ std::vector<float> FourierCCR::ccr(std::vector<float> a, std::vector<float> b) {
 		afft[i] = conj(afft[i]);
 	}
 
-	tmp = fft->ifft(FourierCCR::mul(afft, fft->fft(bc)));
-	
-	for (unsigned int i = 0; i < res.size(); i++) {
+	tmp = fft->ifft(mul(afft, fft->fft(bc)));
+
+	for (unsigned int i = 0; i < tmp.size(); i++) {
 		res.push_back(tmp[i].real());
 	}
 
@@ -49,9 +50,8 @@ void FourierCCR::changeStrategy(FFTStrategy* s) {
 }
 
 std::vector<std::complex<float> > FourierCCR::mul(
-	std::vector<std::complex<float> > a,
-	std::vector<std::complex<float> > b) {
-	
+		std::vector<std::complex<float> > a,
+		std::vector<std::complex<float> > b) {
 	for (unsigned int i = 0; i < a.size(); i++) {
 		a[i] *= b[i];
 	}

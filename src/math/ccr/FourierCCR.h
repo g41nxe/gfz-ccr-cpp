@@ -9,23 +9,21 @@
 #define FOURIERCCR_H_
 
 #include "CCRStrategy.h"
-#include "../fft/FFTStrategy.h"
 
+class FFTStrategy;
 class FourierCCR : public CCRStrategy {
 
 public:
 	FourierCCR(FFTStrategy *s);
 	void changeStrategy(FFTStrategy* s);
-	std::vector<float> ccr(std::vector<float> a, std::vector<float> b);
+	std::vector<float> ccr(std::vector<float>, std::vector<float>);
 
-
-private:
-	FFTStrategy *fft;
-
-	std::vector<std::complex<float> > mul(
+	static std::vector<std::complex<float> > mul(
 		std::vector<std::complex<float> >,
 		std::vector<std::complex<float> >);
 
+private:
+	FFTStrategy *fft;
 };
 
 #endif /* FOURIERCCR_H_ */

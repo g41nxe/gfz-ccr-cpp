@@ -1,31 +1,36 @@
-CC := g++ # This is the main compiler
-SRCDIR := src/
-BUILDDIR := bin
-TARGET := bin/ccr
+# GENERIC MAKEFILE
+# http://hiltmon.com/blog/2013/07/03/a-simple-c-plus-plus-project-structure/
  
-SRCEXT := cpp
-SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
-OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-CFLAGS := -g -Wall -O2
-LIB := #-pthread -lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
-INC := #-I include
+CC := g++ # This is the main compiler
 
-$(TARGET): $(OBJECTS)
-	@echo " Linking..."
-	@mkdir -p $(BUILDDIR)
-	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB)
+SRCDIR   := src
+BUILDDIR := bin
+MAINDIR  := src/main
+SRCEXT   := cpp
 
+CFLAGS   := -g -Wall
+LIB      := # -pthread
+INC      := # -I include
+
+SOURCES  := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
+OBJECTS  := $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(SOURCES:.$(SRCEXT)=.o))
+MAINSRCS := $(shell find $(MAINDIR) -type f -name *.$(SRCEXT))
+MAINOBJS := $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(MAINSRCS:.$(SRCEXT)=.o))
+TARGETS  := $(notdir $(basename $(shell find $(MAINDIR) -type f -name *.$(SRCEXT))))
+
+# build all targets
+$(TARGETS): $(OBJECTS) $(MAINOBJS)
+	@echo " Linking ..."
+	$(CC) $(filter-out $(MAINOBJS), $(OBJECTS)) $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(MAINDIR))/$@.o -o $@ $(LIB)
+
+# Rule to build .o files
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
-	@mkdir -p $(BUILDDIR)
-	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
+	@echo " Compiling ..."
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
 clean:
 	@echo " Cleaning..."; 
-	@echo " $(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
-	@echo " $(RM) $(OBJECTS)"
-
-# Tests	
-tester:
-	$(CC) $(CFLAGS) test/tester.cpp $(INC) $(LIB) -o bin/tester
+	$(RM) -r $(BUILDDIR) $(TARGETS)
 
 .PHONY: clean

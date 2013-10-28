@@ -4,19 +4,11 @@
 #include <iostream>
 #include <algorithm>
 
-#include "../math/fft/IterativeFFT.h"
 #include "../math/ccr/FourierCCR.h"
+#include "../math/fft/IterativeFFT.h"
 
 float getRand(float hi, float lo) {
 	return hi + (float) rand() / ((float) RAND_MAX / (hi - lo));
-}
-
-template<class T> void printVector(std::vector<T> a){
-	std::cout << "[ " ;
-	for (unsigned int i = 0; i < a.size(); i++) {
-		std::cout << a[i] << " " ;
-	}
-	std::cout << " ]" << std::endl;;
 }
 
 int main(int argc, char **argv) {
@@ -34,9 +26,7 @@ int main(int argc, char **argv) {
 	else
 		R = atoi(argv[2]);
 
-	cout << R << " runs: cross correlation of two vectors[" << N << "] " << endl;
-
-	vector<float> x(N, 0.f), y(N, 0.f), z;
+	vector<float> x(2 * N, 0.f), y(2 * N, 0.f), z;
 
 	srand((unsigned) time(0));
 
@@ -45,12 +35,8 @@ int main(int argc, char **argv) {
 		y[i] = getRand(-5, 5);
 	}
 
-	printVector(x);
-	printVector(y);
-
-	FourierCCR fccr(new IterativeFFT);
+	FourierCCR fccr(new IterativeFFT());
 	for (unsigned int rounds = 0; rounds < R; rounds++) {
 		z = fccr.ccr(x,y);
-		printVector(z);
 	}
 }

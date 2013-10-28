@@ -8,7 +8,8 @@
 #ifndef ITERATIVEFFT_H_
 #define ITERATIVEFFT_H_
 
-class RecursiveFFT : public FFTStrategy {
+class RecursiveFFT : public FFTStrategy
+{
 
 public:
 	RecursiveFFT() {};
