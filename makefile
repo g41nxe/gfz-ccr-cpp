@@ -5,7 +5,7 @@ CC := g++ # This is the main compiler
 
 SRCDIR   := src
 BUILDDIR := bin
-MAINDIR  := src/main
+MAINDIR  := src/main # maindir must be a sub of srcdir
 SRCEXT   := cpp
 
 CFLAGS   := -g -Wall
@@ -20,17 +20,20 @@ TARGETS  := $(notdir $(basename $(shell find $(MAINDIR) -type f -name *.$(SRCEXT
 
 # build all targets
 $(TARGETS): $(OBJECTS) $(MAINOBJS)
-	@echo " Linking ..."
-	$(CC) $(filter-out $(MAINOBJS), $(OBJECTS)) $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(MAINDIR))/$@.o -o $@ $(LIB)
+	@echo "Linking ..."
+	@for target in $(TARGETS); do \
+	echo $(CC) $(filter-out $(MAINOBJS), $(OBJECTS)) $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(MAINDIR))/$$target.o -o $$target $(LIB); \
+	$(CC) $(filter-out $(MAINOBJS), $(OBJECTS)) $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(MAINDIR))/$$target.o -o $$target $(LIB); \
+	done
 
 # Rule to build .o files
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
-	@echo " Compiling ..."
+	@echo "Compiling ..."
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
 clean:
-	@echo " Cleaning..."; 
+	@echo "Cleaning..."; 
 	$(RM) -r $(BUILDDIR) $(TARGETS)
 
 .PHONY: clean

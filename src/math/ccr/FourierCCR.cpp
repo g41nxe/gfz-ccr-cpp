@@ -19,9 +19,8 @@ std::vector<float> FourierCCR::ccr(std::vector<float> a, std::vector<float> b) {
 	// a.size = b.size and a power of 2
 	using namespace std;
 
-	vector<complex<float> > ac, bc;
-
 	// build complex vector (no fft function for real numbers yet)
+	vector<complex<float> > ac, bc;
 	for (unsigned int i = 0; i < a.size(); i++) {
 		ac.push_back(a[i]);
 		bc.push_back(b[i]);
@@ -36,6 +35,7 @@ std::vector<float> FourierCCR::ccr(std::vector<float> a, std::vector<float> b) {
 		afft[i] = conj(afft[i]);
 	}
 
+	// ccr = ifft[ fft*(a) mul fft(b)]
 	tmp = fft->ifft(mul(afft, fft->fft(bc)));
 
 	for (unsigned int i = 0; i < tmp.size(); i++) {
