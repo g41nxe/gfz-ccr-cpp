@@ -15,8 +15,8 @@ class RecursiveFFT : public FFTStrategy
 
 public:
 	RecursiveFFT() {};
-	std::vector<std::complex<float> > fft(std::vector<std::complex<float> >);
-	std::vector<std::complex<float> > ifft(std::vector<std::complex<float> >);
+	void fft(std::vector<std::complex<float> >*);
+	void ifft(std::vector<std::complex<float> >*);
 };
 
 #endif /* RECURSIVEFFT_H_ */

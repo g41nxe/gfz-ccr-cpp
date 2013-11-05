@@ -14,7 +14,7 @@ class BruteforceCCR : public CCRStrategy {
 
 public:
 	BruteforceCCR() {};
-	std::vector<float> ccr(std::vector<float>, std::vector<float>);
+	std::vector<float> ccr(std::vector<float>*, std::vector<float>*);
 
 private:
 	static std::vector<float> shift(std::vector<float> , int);

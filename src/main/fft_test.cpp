@@ -9,18 +9,13 @@
 
 #include "../math/fft/IterativeFFT.h"
 #include "../math/fft/RecursiveFFT.h"
-
-void equals(std::vector<std::complex<float> > a, std::vector<std::complex<float> > b, bool onlyReal=false) {
-	assert(a.size() == b.size());
-	for (unsigned int i = 0; i < a.size(); i++) {
-		assert(a[i] == b[i]);
-	}
-}
+#include "../io/helpers.h"
 
 int main(int argc, char **argv) {
 	using namespace std;
 	
-	vector<complex<float> > x,y, res;
+	vector<complex<float> > x, y, res;
+
 	srand((unsigned) time(0));
 
 	x.push_back(1.0);
@@ -28,25 +23,33 @@ int main(int argc, char **argv) {
 	x.push_back(3.0);
 	x.push_back(4.0);
 
-	y.push_back(10);
-	y.push_back(complex<float>(-2.0, -2.0));
-	y.push_back(complex<float>(-2.0));
-	y.push_back(complex<float>(-2.0, 2.0));
+	y = x;
+
+	vector<complex<float> > *ptr_x = &x;
+
+	res.push_back(10);
+	res.push_back(complex<float>(-2.0, -2.0));
+	res.push_back(complex<float>(-2.0));
+	res.push_back(complex<float>(-2.0, 2.0));
+
+	cout << "Input: ";	print(x);
+	cout << "Expected fft result: "; print(res);
 
 	IterativeFFT i; 
-	res = i.fft(x);
-	equals(res,y);
-	res.clear();
-	res = i.ifft(i.fft(x));
-	equals(res, x);
-	cout << "Iterative FFT Algorithm: ok" << endl;
+	i.fft(ptr_x);
+	cout << "Iterative fft: "; print(x);
+	//equals(res,y);
+	i.ifft(ptr_x);
+	cout << "Iterative ifft: "; print(x);
+	//equals(res, x);
+	//cout << "Iterative FFT Algorithm: ok" << endl;
 
 	RecursiveFFT r;
-	res.clear();
-	res = r.fft(x);
-	equals(res,y);
-	res.clear();
-	res = r.ifft(r.fft(x));
-	equals(res, x);
-	cout << "Recursive FFT Algorithm: ok" << endl;
+	r.fft(&y);
+	cout << "Recursive fft: "; print(y);
+	//equals(res,y);
+	r.ifft(&y);
+	cout << "Recursive ifft: "; print(y);
+	//equals(res, x);
+	//cout << "Recursive FFT Algorithm: ok" << endl;
 }

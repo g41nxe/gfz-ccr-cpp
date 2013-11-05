@@ -8,13 +8,13 @@
 #include <vector>
 #include "BruteforceCCR.h"
 
-std::vector<float> BruteforceCCR::ccr(std::vector<float> a, std::vector<float> b) {
+std::vector<float> BruteforceCCR::ccr(std::vector<float> *a, std::vector<float> *b) {
 	using namespace std;
 
 	vector<float> c;
 
-	for (int i = -b.size() + 1; i < (int) b.size(); i++) {
-		c.push_back(dot(a, shift(b, i)));
+	for (int i = -b->size() + 1; i < (int) b->size(); i++) {
+		c.push_back(dot((*a), shift((*b), i)));
 	}
 
 	return c;
