@@ -17,6 +17,8 @@ public:
 	void fft(std::vector<std::complex<float> >*);
 	void ifft(std::vector<std::complex<float> >*);
 
+	std::vector<std::complex<float> > fft(std::vector<float>*);
+
 private:
 	unsigned int bit_rev(unsigned int, int);
 };

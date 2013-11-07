@@ -71,6 +71,40 @@ void IterativeFFT::ifft(std::vector<std::complex<float> > *a) {
 	return;
 }
 
+// function to process pure real vectors for double speed
+std::vector<std::complex<float> > IterativeFFT::fft(std::vector<float> *a) {
+	using namespace std;
+
+	unsigned int n = a->size();
+
+	// 1st: split a in 2 parts and build complex vector of size n/2
+	vector<complex<float> > ac(n/2, 0.0);
+	for (unsigned int i = 0; i < n/2; i++) {
+		ac[i].real((*a)[2*i]);
+		ac[i].imag((*a)[2*i+1]);
+	}
+
+	// 2nd: do normal fft
+	fft(&ac);
+	
+	// 3rd: postprecessing to recover real values
+	vector<complex<float> > tmp(n, 0.0);
+	complex<float> omega_n, omega;
+	double theta = 2 * M_PI / n;
+	omega_n = complex<float>(cos(theta), sin(theta));
+	omega = complex<float>(1, 0);
+
+	for (unsigned int m = 0; m < n/2; m++) {
+		tmp[m] = complex<float>(ac[m].real()) + omega * complex<float>(ac[m].imag());
+		tmp[n-m] = conj(tmp[m]);
+		omega *= omega_n;
+	}
+
+	tmp[n/2] = ac[0].real() - ac[0].imag();
+	return tmp;
+
+}
+
 unsigned int IterativeFFT::bit_rev(unsigned int num, int count) {
 	unsigned int reverse_num = 0;
 	int i;
