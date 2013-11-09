@@ -22,13 +22,11 @@ TARGETS  := $(notdir $(basename $(shell find $(MAINDIR) -type f -name *.$(SRCEXT
 $(TARGETS): $(OBJECTS) $(MAINOBJS)
 	@echo "Linking ..."
 	@for target in $(TARGETS); do \
-	echo $(CC) $(filter-out $(MAINOBJS), $(OBJECTS)) $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(MAINDIR))/$$target.o -o $$target $(LIB); \
 	$(CC) $(filter-out $(MAINOBJS), $(OBJECTS)) $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(MAINDIR))/$$target.o -o $$target $(LIB); \
 	done
 
 # Rule to build .o files
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
-	@echo "Compiling ..."
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(LIB) $(INC) -c -o $@ $<
 
@@ -37,3 +35,9 @@ clean:
 	$(RM) -r $(BUILDDIR) $(TARGETS)
 
 .PHONY: clean
+
+benchmark: 
+	./benchmark/benchmark.sh bench_bru benchmark/bru.txt
+	./benchmark/benchmark.sh bench_ite benchmark/ite.txt
+	./benchmark/benchmark.sh bench_rec benchmark/rec.txt
+	./benchmark/benchmark.sh bench_thr benchmark/thr.txt

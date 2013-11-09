@@ -14,6 +14,7 @@ class FFTStrategy;
 class FourierCCR : public CCRStrategy {
 
 public:
+	FourierCCR() {};
 	FourierCCR(FFTStrategy *s);
 
 	void changeStrategy(FFTStrategy *s);

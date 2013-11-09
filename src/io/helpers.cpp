@@ -13,3 +13,7 @@ void equals(std::vector<std::complex<float> > a,
 		assert(a[i] == b[i]);
 	}
 }
+
+float getRand(float hi, float lo) {
+	return hi + (float) rand() / ((float) RAND_MAX / (hi - lo));
+}

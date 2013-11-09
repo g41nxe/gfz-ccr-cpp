@@ -21,4 +21,6 @@ template<typename TYPE> void print(std::vector<TYPE> a) {
 void equals(std::vector<std::complex<float> >, 
 	std::vector<std::complex<float> >);
 
+float getRand(float, float); 
+
 #endif /* HELPERS_H_ */
