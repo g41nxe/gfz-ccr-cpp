@@ -33,11 +33,18 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 clean:
 	@echo "Cleaning..."; 
 	$(RM) -r $(BUILDDIR) $(TARGETS)
+	$(RM) benchmark/*.txt
 
 .PHONY: clean
 
-benchmark: 
-	./benchmark/benchmark.sh bench_bru benchmark/bru.txt
-	./benchmark/benchmark.sh bench_ite benchmark/ite.txt
-	./benchmark/benchmark.sh bench_rec benchmark/rec.txt
-	./benchmark/benchmark.sh bench_thr benchmark/thr.txt
+benchmark:
+	@echo "running bruteforce benchmark"
+	@bash ./benchmark/benchmark.sh ./bench_bru benchmark/bru 0
+	@echo "running iterative benchmark"
+	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/ite 0
+	@echo "running recursive benchmark"
+	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/rec 2
+	@echo "running thread benchmark"
+	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/thr 1
+
+.PHONY: benchmark

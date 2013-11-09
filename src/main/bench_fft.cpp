@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
 	assert(argc == 4);
 
 	FourierCCR ccr;
-	switch(atoi(argv[4])) {
+	switch(atoi(argv[3])) {
 		case 0: // iterative
 			ccr = FourierCCR(new IterativeFFT);
 			break;
