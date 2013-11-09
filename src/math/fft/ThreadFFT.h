@@ -14,9 +14,14 @@ class ThreadFFT : public FFTStrategy
 {
 
 public:
-	RecursiveFFT() {};
-	std::vector<std::complex<float> > fft(std::vector<std::complex<float> >);
-	std::vector<std::complex<float> > ifft(std::vector<std::complex<float> >);
-};
+	ThreadFFT() {};
+	void fft(std::vector<std::complex<float> >*);
+	void ifft(std::vector<std::complex<float> >*);
+	static 
+		void butterfly(std::vector<std::complex<float> > *, 
+			int, int, float, std::complex<float>);
 
+private:
+	unsigned int bit_rev(unsigned int, int);
+};
 #endif /* THREADFFT_H_ */

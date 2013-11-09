@@ -9,7 +9,7 @@ MAINDIR  := src/main # maindir must be a sub of srcdir
 SRCEXT   := cpp
 
 CFLAGS   := -g -Wall
-LIB      := # -pthread
+LIB      := -pthread -std=c++11
 INC      := # -I include
 
 SOURCES  := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
@@ -30,7 +30,7 @@ $(TARGETS): $(OBJECTS) $(MAINOBJS)
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@echo "Compiling ..."
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+	$(CC) $(CFLAGS) $(LIB) $(INC) -c -o $@ $<
 
 clean:
 	@echo "Cleaning..."; 

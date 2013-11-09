@@ -16,7 +16,7 @@ void IterativeFFT::fft(std::vector<std::complex<float> > *a) {
 	using namespace std;
 
 	unsigned int n = a->size(); 
-	assert(FFTStrategy::isPowerOf2(n)); 	// n must be power of 2
+	assert(FFTStrategy::isPowerOf2(n)); // n must be power of 2
 
 	complex<float> omega, omega_m;
 	double m;
@@ -32,18 +32,19 @@ void IterativeFFT::fft(std::vector<std::complex<float> > *a) {
 		}
 	}
 
+	// iterative fft
 	for (unsigned int s = 1; s <= ceil(log2(n)); s++) {
 		m = pow(2, s);
 		double theta = 2 * M_PI / m;
 		omega_m = complex<double>(cos(theta), sin(theta));
-		omega = complex<double>(1, 0);
+		omega = complex<double>(1, 0); // twiddle factors
 
 		for (unsigned int j = 0; j <= (m / 2) - 1; j++) {
 			for (unsigned int k = j; k <= n - 1; k += m) {
 				complex<double> t = omega * (*a)[k + (m / 2)];
 				complex<double> u = (*a)[k];
-				(*a)[k] = u + t;
-				(*a)[k + (m / 2)] = u - t;
+				(*a)[k] = u + t;  // butterfly operations
+				(*a)[k + (m / 2)] = u - t; // ...
 			}
 			omega *= omega_m;
 		}
@@ -88,20 +89,19 @@ std::vector<std::complex<float> > IterativeFFT::fft(std::vector<float> *a) {
 	fft(&ac);
 	
 	// 3rd: postprecessing to recover real values
-	vector<complex<float> > tmp(n, 0.0);
-	complex<float> omega_n, omega;
 	double theta = 2 * M_PI / n;
-	omega_n = complex<float>(cos(theta), sin(theta));
-	omega = complex<float>(1, 0);
+	complex<float> omega_n = complex<float>(cos(theta), sin(theta));
+	complex<float> omega = complex<float>(1, 0);
 
+	vector<complex<float> > res(n, 0.0);
 	for (unsigned int m = 0; m < n/2; m++) {
-		tmp[m] = complex<float>(ac[m].real()) + omega * complex<float>(ac[m].imag());
-		tmp[n-m] = conj(tmp[m]);
+		res[m] = complex<float>(ac[m].real()) + omega * complex<float>(ac[m].imag());
+		res[n-m] = conj(res[m]);
 		omega *= omega_n;
 	}
 
-	tmp[n/2] = ac[0].real() - ac[0].imag();
-	return tmp;
+	res[n/2] = ac[0].real() - ac[0].imag();
+	return res;
 
 }
 
