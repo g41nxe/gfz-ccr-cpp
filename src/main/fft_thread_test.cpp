@@ -8,7 +8,7 @@
 #include <limits>
 
 #include "../math/fft/ThreadFFT.h"
-#include "../math/fft/RecursiveFFT.h"
+#include "../math/fft/IterativeFFT.h"
 #include "../io/helpers.h"
 
 int main(int argc, char **argv) {
@@ -18,6 +18,10 @@ int main(int argc, char **argv) {
 
 	srand((unsigned) time(0));
 
+	x.push_back(1.0);
+	x.push_back(2.0);
+	x.push_back(3.0);
+	x.push_back(4.0);
 	x.push_back(1.0);
 	x.push_back(2.0);
 	x.push_back(3.0);
@@ -44,12 +48,12 @@ int main(int argc, char **argv) {
 	//equals(res, x);
 	//cout << "Iterative FFT Algorithm: ok" << endl;
 
-	RecursiveFFT r;
+	IterativeFFT r;
 	r.fft(&y);
-	cout << "Recursive fft: "; print(y);
+	cout << "Iterative fft: "; print(y);
 	//equals(res,y);
 	r.ifft(&y);
-	cout << "Recursive ifft: "; print(y);
+	cout << "Iterative ifft: "; print(y);
 	//equals(res, x);
 	//cout << "Recursive FFT Algorithm: ok" << endl;
 }

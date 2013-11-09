@@ -8,6 +8,7 @@
 #include <complex>
 #include <vector>
 #include <assert.h>
+#include "../../io/helpers.h"
 
 #include "IterativeFFT.h"
 
@@ -17,9 +18,6 @@ void IterativeFFT::fft(std::vector<std::complex<float> > *a) {
 
 	unsigned int n = a->size(); 
 	assert(FFTStrategy::isPowerOf2(n)); // n must be power of 2
-
-	complex<float> omega, omega_m;
-	double m;
 
 	// permutate data by bit-reversing the log2(n)+1 bits of the indices
 	for (unsigned int i = 0; i < n; i++) {
@@ -33,12 +31,13 @@ void IterativeFFT::fft(std::vector<std::complex<float> > *a) {
 	}
 
 	// iterative fft
+	complex<float> omega, omega_m;	
+	double m, theta;
 	for (unsigned int s = 1; s <= ceil(log2(n)); s++) {
 		m = pow(2, s);
-		double theta = 2 * M_PI / m;
+		theta = 2 * M_PI / m;
 		omega_m = complex<double>(cos(theta), sin(theta));
-		omega = complex<double>(1, 0); // twiddle factors
-
+		omega = complex<double>(1, 0); // twiddle factors	
 		for (unsigned int j = 0; j <= (m / 2) - 1; j++) {
 			for (unsigned int k = j; k <= n - 1; k += m) {
 				complex<double> t = omega * (*a)[k + (m / 2)];

@@ -25,8 +25,6 @@ int main(int argc, char **argv) {
 
 	y = x;
 
-	vector<complex<float> > *ptr_x = &x;
-
 	res.push_back(10);
 	res.push_back(complex<float>(-2.0, -2.0));
 	res.push_back(complex<float>(-2.0));
@@ -36,10 +34,10 @@ int main(int argc, char **argv) {
 	cout << "Expected fft result: "; print(res);
 
 	IterativeFFT i; 
-	i.fft(ptr_x);
+	i.fft(&x);
 	cout << "Iterative fft: "; print(x);
 	//equals(res,y);
-	i.ifft(ptr_x);
+	i.ifft(&x);
 	cout << "Iterative ifft: "; print(x);
 	//equals(res, x);
 	//cout << "Iterative FFT Algorithm: ok" << endl;

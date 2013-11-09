@@ -8,9 +8,14 @@
 #include <complex>
 #include <vector>
 #include <assert.h>
-#include <thread>
+#include <pthread.h>
+#include <unistd.h>
+#include "../../io/helpers.h"
 
 #include "ThreadFFT.h"
+
+volatile int running_threads;
+pthread_mutex_t running_mutex, a_mutex;
 
 void ThreadFFT::fft(std::vector<std::complex<float> > *a) {
 
@@ -32,46 +37,57 @@ void ThreadFFT::fft(std::vector<std::complex<float> > *a) {
 
 	// iterative fft
 	complex<float> omega, omega_m;
+	double m, theta;
 	for (unsigned int s = 1; s <= ceil(log2(n)); s++) {
-		float m = pow(2, s);
-		float theta = 2 * M_PI / m;
-		omega_m = complex<float>(cos(theta), sin(theta));
-		omega = complex<float>(1, 0); // twiddle factors
+		m = pow(2, s);
+		theta = 2 * M_PI / m;
+		omega_m = complex<double>(cos(theta), sin(theta));
+		omega = complex<double>(1, 0); // twiddle factors
 
 		// spawn threads to calc butterfly operations in parallel
-		vector<thread*> threads;
+		running_threads = (int) m/2;
+		running_mutex = a_mutex = PTHREAD_MUTEX_INITIALIZER;		
+		pthread_t threads[running_threads];
+		struct butterfly_parameter bp[running_threads];
+
 		for (unsigned int j = 0; j <= (m / 2) - 1; j++) {
-			thread t(butterfly, a, s, j, m, omega);
-			threads.push_back(&t);
+			bp[j] = {a, j, m, omega, s};
+			pthread_create(&(threads[j]), NULL, butterfly, &bp[j]);
 			omega *= omega_m;
 		}
 		
-		// collect for results
-		while(threads.size() > 0) {
-			for (unsigned int k = 0; k < threads.size(); k++) {
-				if((*threads[k]).joinable()){
-					(*threads[k]).join();
-					threads.erase(threads.begin()+k);
-				}
-			}
-		}
-		
-	
+		// collect results
+  		while (running_threads > 0) {
+     		sleep(1);
+  		}
 	}
 
+	return;
 }
 
-void ThreadFFT::butterfly(std::vector<std::complex<float> > *a, 
-	int s, int j, float m, std::complex<float> omega){
+void *ThreadFFT::butterfly(void *arg){
 	using namespace std;
 
-	unsigned int n = a->size();
-	for (unsigned int k = j; k <= n - 1; k += m) {
-		complex<float> t = omega * (*a)[k + (m / 2)];
-		complex<float> u = (*a)[k];
-		(*a)[k] = u + t;  // butterfly operations
-		(*a)[k + (m / 2)] = u - t; // ...
+	butterfly_parameter* p = (butterfly_parameter*) arg;
+
+//	cout << "thread" << ": " << pthread_self(); print(*p->a);
+//	cout << "omega: " << p->omega << " j: " << p->j << " m: " << p->m << endl; 
+	
+	unsigned int n = (p->a)->size();
+	for (unsigned int k = p->j; k <= n - 1; k += p->m) {
+		complex<double> t = p->omega * (*p->a)[k + (p->m / 2)];
+		complex<double> u = (*p->a)[k];
+		(*p->a)[k] = u + t;  // butterfly operations
+		(*p->a)[k + (p->m / 2)] = u - t; // ...
+
+//		cout << "i1: " << k << " i2: " << k+(p->m)/2 << endl;
 	} 
+	
+   pthread_mutex_lock(&running_mutex);
+   running_threads--;
+   pthread_mutex_unlock(&running_mutex);
+
+   return NULL;
 } 
 
 void ThreadFFT::ifft(std::vector<std::complex<float> > *a) {

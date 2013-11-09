@@ -10,6 +10,15 @@
 
 #include "FFTStrategy.h"
 
+typedef struct butterfly_parameter butterfly_parameter;
+struct butterfly_parameter {
+	std::vector<std::complex<float> >* a;
+	unsigned int j;
+	double m;
+	std::complex<float> omega;
+	unsigned int s;
+};
+
 class ThreadFFT : public FFTStrategy
 {
 
@@ -18,10 +27,10 @@ public:
 	void fft(std::vector<std::complex<float> >*);
 	void ifft(std::vector<std::complex<float> >*);
 	static 
-		void butterfly(std::vector<std::complex<float> > *, 
-			int, int, float, std::complex<float>);
+		void *butterfly(void*);
 
 private:
 	unsigned int bit_rev(unsigned int, int);
 };
+
 #endif /* THREADFFT_H_ */
