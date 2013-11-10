@@ -10,11 +10,11 @@ do
 	
 	for size in 9 10 11
 	do
+		echo -e $1": "$rounds" rounds, size: 2^"$size
 		/usr/bin/time -f%U -otime $1 $size $rounds $3
 		OUTPUT+=`cat time`
 		OUTPUT+="\t"
 	done
-	
 	echo -e $OUTPUT >> $2.txt
 done
 

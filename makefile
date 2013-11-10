@@ -38,12 +38,12 @@ clean:
 .PHONY: clean
 
 benchmark:
-	@echo "running bruteforce benchmark"
-	@bash ./benchmark/benchmark.sh ./bench_bru benchmark/bru 0
+#	@echo "running bruteforce benchmark"
+#	@bash ./benchmark/benchmark.sh ./bench_bru benchmark/bru 0
 	@echo "running iterative benchmark"
 	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/ite 0
-	@echo "running recursive benchmark"
-	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/rec 2
+#	@echo "running recursive benchmark"
+#	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/rec 2
 	@echo "running thread benchmark"
 	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/thr 1
 

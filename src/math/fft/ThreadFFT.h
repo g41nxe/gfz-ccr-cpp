@@ -27,7 +27,9 @@ public:
 	void fft(std::vector<std::complex<float> >*);
 	void ifft(std::vector<std::complex<float> >*);
 	static 
-		void *butterfly(void*);
+		void butterfly(struct butterfly_parameter*);
+	static
+		void* butterflyWorker(void*);
 
 private:
 	unsigned int bit_rev(unsigned int, int);
