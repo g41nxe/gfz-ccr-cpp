@@ -15,13 +15,12 @@
 
 #include "ThreadFFT.h"
 
- #define THREADCOUNT 16
+ #define THREADCOUNT 1
 
 volatile int running_threads;
 
-pthread_barrier_t all_done;
 pthread_mutex_t todo_mutex = PTHREAD_MUTEX_INITIALIZER;
-std::queue<struct butterfly_parameter> todo;
+std::queue<struct butterfly_parameter> todo, empty;
 
 void ThreadFFT::fft(std::vector<std::complex<float> > *a) {
 
@@ -43,55 +42,70 @@ void ThreadFFT::fft(std::vector<std::complex<float> > *a) {
 
 	// iterative fft
 	complex<float> omega, omega_m;
-	double m, theta;
+	double m, theta;	
+
 	for (unsigned int s = 1; s <= ceil(log2(n)); s++) {
+		vector<pthread_t*> threads;
+		std::queue<butterfly_parameter> current_todo;
+		pthread_mutex_init(&todo_mutex, NULL);		
+
 		m = pow(2, s);
 		theta = 2 * M_PI / m;
 		omega_m = complex<double>(cos(theta), sin(theta));
 		omega = complex<double>(1, 0); // twiddle factors
 
-		// fill parameter queue
+		// fill parameter queue		
 		for (unsigned int j = 0; j <= (m / 2) - 1; j++) {
-			todo.push({a, j, m, omega, s});
+			current_todo.push ({a, j, m, omega});
 			omega *= omega_m;
-		}		
+		}
+		swap(current_todo, todo);
 
 		// start threads
-		pthread_mutex_init(&todo_mutex, NULL);
-		pthread_barrier_init(&all_done, NULL, THREADCOUNT+1);
+		while (threads.size() < THREADCOUNT) {
+			pthread_t* t = new pthread_t;
+			int retval = pthread_create(t, NULL, &butterflyWorker, NULL);
+			if (retval)
+				break;
+			threads.push_back(t);
+		} 	
 
-		int retval = 0;
-		for (int i=0; i < THREADCOUNT && (retval == 0); i++) {
-			retval = pthread_create(new pthread_t, NULL, &butterflyWorker, NULL);
-			if(retval)
-			printf("ERROR: %d\n", retval);				
-		} 
+		// wait for result
+		for (pthread_t* t : threads) {
+			pthread_join(*t, NULL);
+		}
+
+		pthread_mutex_destroy(&todo_mutex);
 	}
-
-	pthread_barrier_wait(&all_done);
-	pthread_mutex_destroy(&todo_mutex);
-	pthread_barrier_destroy(&all_done);
 	
 	return;
 }
 
 void* ThreadFFT::butterflyWorker(void* args) {
-    struct butterfly_parameter bp;
-    while (!todo.empty()) {
+   
+   for (;;) {
+   		struct butterfly_parameter* bp = NULL;
         pthread_mutex_lock(&todo_mutex);
-        if(!todo.empty())
-        	bp = todo.front(); todo.pop();
+
+        if (todo.empty()) {
+        	pthread_mutex_unlock(&todo_mutex);
+        	break;
+        }
+        	
+        bp = &todo.front(); 
+        todo.pop();
+
         pthread_mutex_unlock(&todo_mutex);
  
-        butterfly(&bp);
+ 		if (bp != NULL)
+ 			butterfly(bp);
     }
-
-    pthread_barrier_wait(&all_done);
     return NULL;
 }
 
 void ThreadFFT::butterfly(struct butterfly_parameter* p){
 	using namespace std;
+
 	unsigned int n = (p->a)->size();
 	for (unsigned int k = p->j; k <= n - 1; k += p->m) {
 		complex<double> t = p->omega * (*p->a)[k + (p->m / 2)];

@@ -58,6 +58,8 @@ int main(int argc, char **argv) {
 	}
 
 	for (unsigned int rounds = 0; rounds < R; rounds++) {
-		z = ccr.ccr(&x, &y);
+		vector<float> current_x(x);
+		vector<float> current_y(y);
+		z = ccr.ccr(&current_x, &current_y);
 	}
 }

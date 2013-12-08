@@ -16,7 +16,6 @@ struct butterfly_parameter {
 	unsigned int j;
 	double m;
 	std::complex<float> omega;
-	unsigned int s;
 };
 
 class ThreadFFT : public FFTStrategy
