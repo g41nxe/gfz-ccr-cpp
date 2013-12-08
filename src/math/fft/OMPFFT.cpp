@@ -9,20 +9,17 @@
 #include <vector>
 #include <queue>
 #include <assert.h>
-#include <pthread.h>
+#include <omp.h>
 #include <unistd.h>
 #include "../../io/helpers.h"
 
-#include "ThreadFFT.h"
+#include "OMPFFT.h"
 
- #define THREADCOUNT 4
+ #define THREADCOUNT 8
 
-volatile int running_threads;
+omp_lock_t todo_lock;
 
-pthread_mutex_t todo_mutex = PTHREAD_MUTEX_INITIALIZER;
-std::queue<struct butterfly_parameter> todo, empty;
-
-void ThreadFFT::fft(std::vector<std::complex<float> > *a) {
+void OMPFFT::fft(std::vector<std::complex<float> > *a) {
 
 	using namespace std;
 
@@ -45,66 +42,48 @@ void ThreadFFT::fft(std::vector<std::complex<float> > *a) {
 	double m, theta;	
 
 	for (unsigned int s = 1; s <= ceil(log2(n)); s++) {
-		vector<pthread_t*> threads;
-		std::queue<butterfly_parameter> current_todo;
-		pthread_mutex_init(&todo_mutex, NULL);		
-
 		m = pow(2, s);
 		theta = 2 * M_PI / m;
 		omega_m = complex<double>(cos(theta), sin(theta));
 		omega = complex<double>(1, 0); // twiddle factors
 
 		// fill parameter queue		
+		queue<struct bf_params> todo;
 		for (unsigned int j = 0; j <= (m / 2) - 1; j++) {
-			current_todo.emplace(butterfly_parameter{a, j, m, omega});
+			todo.emplace(bf_params{a, j, m, omega});
 			omega *= omega_m;
 		}
-		swap(current_todo, todo);
 
-		// start threads
-		while (threads.size() < THREADCOUNT) {
-			pthread_t* t = new pthread_t;
-			int retval = pthread_create(t, NULL, &butterflyWorker, NULL);
-			if (retval)
-				break;
-			threads.push_back(t);
-		} 	
+		omp_init_lock(&todo_lock);
 
-		// wait for result
-		for (pthread_t* t : threads) {
-			pthread_join(*t, NULL);
+		omp_set_num_threads(THREADCOUNT);
+		
+		#pragma omp parallel
+		{
+			butterfly(&todo);
 		}
 
-		pthread_mutex_destroy(&todo_mutex);
+		omp_destroy_lock(&todo_lock);
+
+
 	}
 	
 	return;
 }
 
-void* ThreadFFT::butterflyWorker(void* args) {
-   
-   for (;;) {
-   		struct butterfly_parameter* bp = NULL;
-        pthread_mutex_lock(&todo_mutex);
-
-        if (todo.empty()) {
-        	pthread_mutex_unlock(&todo_mutex);
-        	break;
-        }
-        	
-        bp = &todo.front(); 
-        todo.pop();
-
-        pthread_mutex_unlock(&todo_mutex);
- 
- 		if (bp != NULL)
- 			butterfly(bp);
-    }
-    return NULL;
-}
-
-void ThreadFFT::butterfly(struct butterfly_parameter* p){
+void OMPFFT::butterfly(std::queue<struct bf_params>* todo){
 	using namespace std;
+
+	struct bf_params *p = NULL;
+
+	omp_set_lock(&todo_lock);
+	if (todo->empty()) {
+        omp_unset_lock(&todo_lock);
+        return;
+    }
+    p = &todo->front();        	
+    todo->pop();
+    omp_unset_lock(&todo_lock);
 
 	unsigned int n = (p->a)->size();
 	for (unsigned int k = p->j; k <= n - 1; k += p->m) {
@@ -115,7 +94,7 @@ void ThreadFFT::butterfly(struct butterfly_parameter* p){
 	} 
 } 
 
-void ThreadFFT::ifft(std::vector<std::complex<float> > *a) {
+void OMPFFT::ifft(std::vector<std::complex<float> > *a) {
 	using namespace std;
 
 	assert(isPowerOf2(a->size()));
@@ -136,7 +115,7 @@ void ThreadFFT::ifft(std::vector<std::complex<float> > *a) {
 	return;
 }
 
-unsigned int ThreadFFT::bit_rev(unsigned int num, int count) {
+unsigned int OMPFFT::bit_rev(unsigned int num, int count) {
 	unsigned int reverse_num = 0;
 	int i;
 	for (i = 0; i < count; i++) {

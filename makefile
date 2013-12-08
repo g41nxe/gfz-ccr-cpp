@@ -9,7 +9,7 @@ MAINDIR  := src/main # maindir must be a sub of srcdir
 SRCEXT   := cpp
 
 CFLAGS   := -g -Wall
-LIB      := -pthread -std=c++11
+LIB      := -pthread -fopenmp -std=c++11
 INC      := # -I include
 
 SOURCES  := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))

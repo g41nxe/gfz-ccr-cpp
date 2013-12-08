@@ -11,6 +11,7 @@
 #include "../math/fft/IterativeFFT.h"
 #include "../math/fft/RecursiveFFT.h"
 #include "../math/fft/ThreadFFT.h"
+#include "../math/fft/OMPFFT.h"
 
 #include "../io/helpers.h"
 
@@ -42,6 +43,8 @@ int main(int argc, char **argv) {
 		case 2: // recursive
 			ccr = FourierCCR(new RecursiveFFT);
 			break;
+		case 3: // openmp
+			ccr = FourierCCR(new OMPFFT);
 		default:
 			break;
 	}

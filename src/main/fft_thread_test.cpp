@@ -7,7 +7,7 @@
 #include <cmath>
 #include <limits>
 
-#include "../math/fft/ThreadFFT.h"
+#include "../math/fft/OMPFFT.h"
 #include "../math/fft/IterativeFFT.h"
 #include "../io/helpers.h"
 
@@ -15,8 +15,6 @@ int main(int argc, char **argv) {
 	using namespace std;
 	
 	vector<complex<float> > x, y, res;
-
-	srand((unsigned) time(0));
 
 	x.push_back(1.0);
 	x.push_back(2.0);
@@ -31,15 +29,17 @@ int main(int argc, char **argv) {
 
 	vector<complex<float> > *ptr_x = &x;
 
-	res.push_back(10);
-	res.push_back(complex<float>(-2.0, -2.0));
-	res.push_back(complex<float>(-2.0));
-	res.push_back(complex<float>(-2.0, 2.0));
+	res.push_back(20);
+	res.push_back(complex<float>(-4.0, -4.0));
+	res.push_back(0);
+	res.push_back(complex<float>(-4,0));
+	res.push_back(complex<float>(-4, 4));
+	res.push_back(0);
 
 	cout << "Input: ";	print(x);
 	cout << "Expected fft result: "; print(res);
 
-	ThreadFFT i; 
+	OMPFFT i; 
 	i.fft(ptr_x);
 	cout << "Thread fft: "; print(x);
 	//equals(res,y);
