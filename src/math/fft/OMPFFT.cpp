@@ -15,11 +15,19 @@
 
 #include "OMPFFT.h"
 
- #define THREADCOUNT 8
+#define THREADCOUNT 4
 
 omp_lock_t todo_lock;
 
 void OMPFFT::fft(std::vector<std::complex<float> > *a) {
+
+	int thr_cnt;
+	
+	if (getenv("THREADCOUNT") != NULL) {
+		thr_cnt = atoi(getenv("THREADCOUNT"));
+	} else { 
+		thr_cnt = THREADCOUNT;
+	}
 
 	using namespace std;
 
@@ -38,61 +46,40 @@ void OMPFFT::fft(std::vector<std::complex<float> > *a) {
 	}
 
 	// iterative fft
-	complex<float> omega, omega_m;
-	double m, theta;	
-
+	complex<float> omega, omega_m;	
+	double m, theta;
 	for (unsigned int s = 1; s <= ceil(log2(n)); s++) {
 		m = pow(2, s);
 		theta = 2 * M_PI / m;
 		omega_m = complex<double>(cos(theta), sin(theta));
-		omega = complex<double>(1, 0); // twiddle factors
+		omega = complex<double>(1, 0); // twiddle factors	
+		
+		complex<float> omegas[(int)m/2]; 
 
-		// fill parameter queue		
-		queue<struct bf_params> todo;
 		for (unsigned int j = 0; j <= (m / 2) - 1; j++) {
-			todo.emplace(bf_params{a, j, m, omega});
+			omegas[j] = omega;
 			omega *= omega_m;
 		}
 
-		omp_init_lock(&todo_lock);
-
-		omp_set_num_threads(THREADCOUNT);
+		omp_set_num_threads(thr_cnt);
 		
-		#pragma omp parallel
-		{
-			butterfly(&todo);
+		int end = (m/2) - 1;
+
+		#pragma omp parallel for shared(a)
+		for (int j = 0; j <= end; j++) {
+
+			for (unsigned int k = j; k <= n -1; k += m) {
+				complex<double> t = omegas[j] * (*a)[k + (m / 2)];
+				complex<double> u = (*a)[k];	
+
+				(*a)[k] = u + t;  // butterfly operations
+				(*a)[k + (m / 2)] = u - t; // ...
+			}
 		}
-
-		omp_destroy_lock(&todo_lock);
-
-
 	}
 	
 	return;
 }
-
-void OMPFFT::butterfly(std::queue<struct bf_params>* todo){
-	using namespace std;
-
-	struct bf_params *p = NULL;
-
-	omp_set_lock(&todo_lock);
-	if (todo->empty()) {
-        omp_unset_lock(&todo_lock);
-        return;
-    }
-    p = &todo->front();        	
-    todo->pop();
-    omp_unset_lock(&todo_lock);
-
-	unsigned int n = (p->a)->size();
-	for (unsigned int k = p->j; k <= n - 1; k += p->m) {
-		complex<double> t = p->omega * (*p->a)[k + (p->m / 2)];
-		complex<double> u = (*p->a)[k];
-		(*p->a)[k] = u + t;  // butterfly operations
-		(*p->a)[k + (p->m / 2)] = u - t; // ...
-	} 
-} 
 
 void OMPFFT::ifft(std::vector<std::complex<float> > *a) {
 	using namespace std;

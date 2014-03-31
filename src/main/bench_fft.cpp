@@ -37,11 +37,11 @@ int main(int argc, char **argv) {
 		case 0: // iterative
 			ccr = FourierCCR(new IterativeFFT);
 			break;
-		case 1: // threads
-			ccr = FourierCCR(new ThreadFFT);
-			break;
-		case 2: // recursive
+		case 1: // recursive
 			ccr = FourierCCR(new RecursiveFFT);
+			break;
+		case 2: // threads
+			ccr = FourierCCR(new ThreadFFT);
 			break;
 		case 3: // openmp
 			ccr = FourierCCR(new OMPFFT);
@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
 	}
 
 
-	//cout << R << " cross-correlations (iterative) of 2 functions with length " << N << endl;
+	//cout << R << " cross-correlations of 2 functions with length " << N << endl;
 	vector<float> x(2 * N, 0.f), y(2 * N, 0.f), z;
 
 	srand((unsigned) time(0));

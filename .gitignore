@@ -19,3 +19,6 @@ bin/
 .settings
 .project
 .cproject
+
+#Benchmark images
+benchmark/*.png

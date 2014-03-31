@@ -18,6 +18,14 @@ MAINSRCS := $(shell find $(MAINDIR) -type f -name *.$(SRCEXT))
 MAINOBJS := $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(MAINSRCS:.$(SRCEXT)=.o))
 TARGETS  := $(notdir $(basename $(shell find $(MAINDIR) -type f -name *.$(SRCEXT))))
 
+BENCHRESULT_FILE = $(shell date)
+
+# threacdount for openmp
+THREADCOUNT := 4
+export THREADCOUNT
+OMP_NUM_THREADS := 4
+export OMP_NUM_THREADS
+
 # build all targets
 $(TARGETS): $(OBJECTS) $(MAINOBJS)
 	@echo "Linking ..."
@@ -38,13 +46,21 @@ clean:
 .PHONY: clean
 
 benchmark:
-#	@echo "running bruteforce benchmark"
-#	@bash ./benchmark/benchmark.sh ./bench_bru benchmark/bru 0
+	@echo "running bruteforce benchmark"
+	@bash ./benchmark/benchmark.sh ./bench_bru benchmark/bru 0
 	@echo "running iterative benchmark"
 	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/ite 0
-#	@echo "running recursive benchmark"
-#	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/rec 2
+	@echo "running recursive benchmark"
+	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/rec 1
 	@echo "running thread benchmark"
-	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/thr 1
-
+	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/thr 2
+	@echo "running omp benchmark"
+	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/omp 3
 .PHONY: benchmark
+
+gnuplot:
+	@echo "creating benchmark diagram"
+	$(shell cd benchmark; gnuplot gnuplot.plt)
+
+.PHONY: gnuplot
+

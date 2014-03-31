@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <cmath>
 #include <limits>
+#include <omp.h>
 
 #include "../math/fft/OMPFFT.h"
 #include "../math/fft/IterativeFFT.h"
@@ -42,9 +43,11 @@ int main(int argc, char **argv) {
 	OMPFFT i; 
 	i.fft(ptr_x);
 	cout << "Thread fft: "; print(x);
+
 	//equals(res,y);
 	i.ifft(ptr_x);
 	cout << "Thread ifft: "; print(x);
+
 	//equals(res, x);
 	//cout << "Iterative FFT Algorithm: ok" << endl;
 
