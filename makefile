@@ -19,6 +19,7 @@ MAINOBJS := $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(MAINSRCS:.$(SRCEXT)=.o))
 TARGETS  := $(notdir $(basename $(shell find $(MAINDIR) -type f -name *.$(SRCEXT))))
 
 BENCHRESULT_FILE = $(shell date)
+NOW := $(shell date +"%Y-%m-%d:%H:%M:%S" | tr ' :' '_')
 
 # threacdount for openmp
 THREADCOUNT := 4
@@ -39,27 +40,22 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	$(CC) $(CFLAGS) $(LIB) $(INC) -c -o $@ $<
 
 clean:
-	@echo "Cleaning..."; 
+	@echo "Cleaning..."
 	$(RM) -r $(BUILDDIR) $(TARGETS)
 	$(RM) benchmark/*.txt
 
 .PHONY: clean
 
 benchmark:
-	@echo "running bruteforce benchmark"
-	@bash ./benchmark/benchmark.sh ./bench_bru benchmark/bru 0
-	@echo "running iterative benchmark"
-	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/ite 0
-	@echo "running recursive benchmark"
-	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/rec 1
-#	@echo "running thread benchmark"
-#	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/thr 2
-	@echo "running omp benchmark"
-	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/omp 3
+	@echo "Running Benchmark..."
+	@for type in 5 0 1 2 3 ; do \
+		./test $$type | tee benchmark/bench_$(NOW).txt; \
+	done
+
 .PHONY: benchmark
 
 gnuplot:
-	@echo "creating benchmark diagram"
+	@echo "Creating Benchmark Diagram"
 	$(shell cd benchmark; gnuplot gnuplot.plt)
 
 .PHONY: gnuplot

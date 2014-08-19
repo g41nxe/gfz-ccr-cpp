@@ -60,10 +60,10 @@ void OMPFFT::fft(std::vector<std::complex<float> > *a) {
 		}
 
 		omp_set_num_threads(thr_cnt);
-		
+
 		int end = (m/2) - 1;
 
-		//#pragma omp parallel for shared(a)
+		#pragma omp parallel for shared(a)
 		for (int j = 0; j <= end; j++) {
 
 			for (unsigned int k = j; k <= n -1; k += m) {

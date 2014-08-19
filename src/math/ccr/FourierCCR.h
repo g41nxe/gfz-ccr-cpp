@@ -24,7 +24,6 @@ public:
 	std::vector<std::complex<float> > mul(
 		std::vector<std::complex<float> >, 
 		std::vector<std::complex<float> >);
-
 private:
 	FFTStrategy *fft;
 };

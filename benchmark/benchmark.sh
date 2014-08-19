@@ -1,21 +1,18 @@
 #!/bin/bash
 
-rm -f $2.txt
-touch $2.txt
+rm -f test.txt
+touch test.txt
 
-echo -e "#rounds\t#512\t#1024\t#2048" >> $2.txt
-for rounds in 100 500 1000
-do
-	OUTPUT="$rounds\t"	
-	
-	for size in 10 11 12
+for type in 0 1 2
+do	
+	OUTUT=""
+	for size in 1 2.5 5 10
 	do
-		echo -e $1": "$rounds" rounds, size: 2^"$size
-		/usr/bin/time -f%U -otime $1 $size $rounds $3
+		/usr/bin/time -f%U -otime $1 $type $size
 		OUTPUT+=`cat time`
 		OUTPUT+="\t"
 	done
-	echo -e $OUTPUT >> $2.txt
+	echo -e $OUTPUT >> test.txt
 done
 
 rm -f time
