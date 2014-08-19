@@ -17,6 +17,7 @@ public:
 	std::vector<float> getRow(unsigned int);
 	std::vector<int> getYears();
 	unsigned int size();
+	std::vector<std::vector<float>>* getData();
 
 private:
 	void readLine(std::string);

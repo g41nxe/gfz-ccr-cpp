@@ -30,6 +30,10 @@ std::vector<float> DataLoader::getRow(unsigned int i){
 	return this->data.at(i);
 }
 
+std::vector<std::vector<float>>* DataLoader::getData() {
+	return &this->data;
+}
+
 unsigned int DataLoader::size(){
 	return this->data.size();
 }

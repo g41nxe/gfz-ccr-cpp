@@ -33,23 +33,33 @@ int main(int argc, char **argv) {
 		case 1: // recursive
 			ccr = FourierCCR(new RecursiveFFT);
 			break;
-		case 2: // openmp (iterative fft)
+		case 2: // openmp 
 			ccr = FourierCCR(new OMPFFT);
 			break;
+		case 3: // openmp (iteratkive)
+			ccr = FourierCCR(new IterativeFFT);
 		default:
 			break;
 	}
 
 	DataLoader dl(filename);
 	dl.load();
-	
-	vector<float> x(dl.getRow(0)), z;
-	int pow2 = nextPowerOf2(dl.getRow(0).size()); 
-	x.resize(pow2);
 
-	for (unsigned int i = 0; i < dl.size(); i++) {
-		vector<float> y(dl.getRow(i));	
-		y.resize(pow2);
-		z = ccr.ccr(&x, &y);
+	vector<vector<float>>* data = dl.getData();
+	vector<float> z;
+
+	cout << omp_get_num_threads() << endl;
+
+	int pow2 = nextPowerOf2(data->at(0).size());
+
+	for (unsigned int i = 0; i < data->size(); i++) {
+		data->at(i).resize(pow2, 0);
+	}
+
+	if (atoi(argv[1]) == 3) {
+			#pragma omp parallel for 
+		for (unsigned int i = 0; i < data->size(); i++) {
+			z = ccr.ccr(&data->at(0), &data->at(i));
+		}
 	}
 }
