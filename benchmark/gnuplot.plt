@@ -30,9 +30,9 @@ plot "ite.txt"  using 1:2 ls 1 pt 5  title "iterative 512" w lp, \
      "rec.txt"  using 1:3 ls 2 pt 7  title "" w lp, \
      "rec.txt"  using 1:4 ls 2 pt 11 title "" w lp, \
      \
-     "thr.txt" using 1:2 ls 3 pt 5  title "omp" w lp, \
-     "thr.txt" using 1:3 ls 3 pt 7  title "" w lp, \
-     "thr.txt" using 1:4 ls 3 pt 11 title "" w lp, \
+     "omp.txt" using 1:2 ls 3 pt 5  title "omp" w lp, \
+     "omp.txt" using 1:3 ls 3 pt 7  title "" w lp, \
+     "omp.txt" using 1:4 ls 3 pt 11 title "" w lp, \
 	\
      "bru.txt" using 1:2 ls 4 pt 5  title "bruteforce" w lp, \
      "bru.txt" using 1:3 ls 3 pt 7  title "" w lp, \

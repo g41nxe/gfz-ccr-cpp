@@ -52,8 +52,8 @@ benchmark:
 	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/ite 0
 	@echo "running recursive benchmark"
 	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/rec 1
-	@echo "running thread benchmark"
-	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/thr 2
+#	@echo "running thread benchmark"
+#	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/thr 2
 	@echo "running omp benchmark"
 	@bash ./benchmark/benchmark.sh ./bench_fft benchmark/omp 3
 .PHONY: benchmark

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <algorithm>
 #include <assert.h>
+#include <omp.h>
 
 #include "../math/ccr/CCRStrategy.h"
 #include "../math/ccr/BruteforceCCR.h"
@@ -40,11 +41,11 @@ int main(int argc, char **argv) {
 		case 1: // recursive
 			ccr = FourierCCR(new RecursiveFFT);
 			break;
-		case 2: // threads
-			ccr = FourierCCR(new ThreadFFT);
-			break;
-		case 3: // openmp
+		case 2: // openmp (iterative fft)
 			ccr = FourierCCR(new OMPFFT);
+			break;
+		case 3: // openmp (openmp fft)
+			ccr = FourierCCR(new IterativeFFT);
 		default:
 			break;
 	}
@@ -60,9 +61,21 @@ int main(int argc, char **argv) {
 		y[i] = getRand(-5, 5);
 	}
 
-	for (unsigned int rounds = 0; rounds < R; rounds++) {
-		vector<float> current_x(x);
-		vector<float> current_y(y);
-		z = ccr.ccr(&current_x, &current_y);
+	if (atoi(argv[3]) == 3 || atoi(argv[3]) == 2) {
+		#pragma omp parallel for 
+		for (unsigned int rounds = 0; rounds < R; rounds++) {
+			vector<float> current_x(x);
+			vector<float> current_y(y);
+			z = ccr.ccr(&current_x, &current_y);
+		}
 	}
+	
+	else  {
+		for (unsigned int rounds = 0; rounds < R; rounds++) {
+			vector<float> current_x(x);
+			vector<float> current_y(y);
+			z = ccr.ccr(&current_x, &current_y);
+		}
+	}
+
 }

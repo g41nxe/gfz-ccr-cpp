@@ -17,8 +17,6 @@
 
 #define THREADCOUNT 4
 
-omp_lock_t todo_lock;
-
 void OMPFFT::fft(std::vector<std::complex<float> > *a) {
 
 	int thr_cnt;
@@ -65,7 +63,7 @@ void OMPFFT::fft(std::vector<std::complex<float> > *a) {
 		
 		int end = (m/2) - 1;
 
-		#pragma omp parallel for shared(a)
+		//#pragma omp parallel for shared(a)
 		for (int j = 0; j <= end; j++) {
 
 			for (unsigned int k = j; k <= n -1; k += m) {
@@ -94,7 +92,7 @@ void OMPFFT::ifft(std::vector<std::complex<float> > *a) {
 	this->fft(a);
 
 	// devide all elements by vector size and 
-	// swap imag and real part back
+	// swap back imag and real part
 	for (unsigned int i = 0; i < a->size(); i++) {
 		(*a)[i] = complex<float>((*a)[i].imag() / a->size(), (*a)[i].real() / a->size());
 	}
