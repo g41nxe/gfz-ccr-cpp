@@ -13,7 +13,6 @@
 #include <cmath>
 #include <stdexcept>
 #include <stdlib.h>
-
 #include "DataLoader.h"
 
 DataLoader::DataLoader(std::string filename) {
@@ -23,7 +22,7 @@ DataLoader::DataLoader(std::string filename) {
 DataLoader::~DataLoader() {
 }
 
-std::vector<float> DataLoader::getYears(){
+std::vector<int> DataLoader::getYears(){
 	return this->years;
 }
 
@@ -31,6 +30,9 @@ std::vector<float> DataLoader::getRow(unsigned int i){
 	return this->data.at(i);
 }
 
+unsigned int DataLoader::size(){
+	return this->data.size();
+}
 
 void DataLoader::load() {
 	using namespace std;
@@ -38,7 +40,7 @@ void DataLoader::load() {
 	ifstream f(this->filename.c_str());
 
 	if (!f.is_open())
-		throw "Error opening file!";
+		throw;
 
 	string line;
 	vector<vector<double> > data;
@@ -54,15 +56,20 @@ void DataLoader::readLine(std::string line) {
 	string element;
 	stringstream ss(line);
 	int i = 0;
+	bool isFirstRow = true;
 
 	while (ss >> element) {
+
 		if (element.size() > 0) {
 			try {
-				if (element.compare("NaN") != 0)
+				if (isFirstRow) {
+					this->years.push_back((int)atof(element.c_str()));
+					isFirstRow = false;
+				} else if (element.compare("NaN") != 0) {
 					this->data.at(i++).push_back(atof(element.c_str()));
-				else
+				} else {
 					this->data.at(i++).push_back(NAN);
-
+				}
 			} catch (const out_of_range& e) {
 				vector<float> v;
 

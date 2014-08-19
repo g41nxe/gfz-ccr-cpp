@@ -12,15 +12,17 @@ class DataLoader {
 public:
 	DataLoader(std::string);
 	virtual ~DataLoader();
+	
 	void load();
 	std::vector<float> getRow(unsigned int);
-	std::vector<float> getYears();
+	std::vector<int> getYears();
+	unsigned int size();
 
 private:
 	void readLine(std::string);
 	std::vector<std::vector<float> > data;
 	std::string filename;
-	std::vector<float> years;
+	std::vector<int> years;
 };
 
 #endif /* DATALOADER_H_ */

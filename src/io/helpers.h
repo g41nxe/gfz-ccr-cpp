@@ -23,4 +23,6 @@ void equals(std::vector<std::complex<float> >,
 
 float getRand(float, float); 
 
+int nextPowerOf2(int n);
+
 #endif /* HELPERS_H_ */

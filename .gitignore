@@ -22,3 +22,6 @@ bin/
 
 #Benchmark images
 benchmark/*.png
+
+#data files too big
+data/*
