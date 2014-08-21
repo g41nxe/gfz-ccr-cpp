@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <omp.h>
 #include <chrono>
+#include <map>
 
 #include "../math/ccr/CCRStrategy.h"
 #include "../math/ccr/BruteforceCCR.h"
@@ -31,7 +32,6 @@ int main(int argc, char **argv) {
 	string filename("data/dongge_realisations.txt");
 	FourierCCR ccr;
 	string type;
-	bool printData = false;
 
 	switch(atoi(argv[1])) {
 		case 0: // iterative
@@ -55,7 +55,6 @@ int main(int argc, char **argv) {
 		break;
 
 		default:
-		printData = true;
 		break;
 	}
 
@@ -74,44 +73,38 @@ int main(int argc, char **argv) {
 	dl.load();
 	vector<vector<float>>* data = dl.getData();
 
-	// print runs
-	if (printData) {
-		cout << "runs" << "\t";
-		for (unsigned int r : {1, 5, 10}) {
-			cout << r * 0.1 * data->size() << "\t";
-		}
-		cout << endl;
-
-		exit(0);
-	}
-
-	// resize
-	int pow2 = nextPowerOf2(data->at(0).size());
-	for (unsigned int i = 0; i < data->size(); i++) {
-		data->at(i).resize(pow2, 0);
-	}
+	map<int, vector<chrono::duration<double>>> all_times;
 
 	// do work
-	vector<chrono::duration<double>> times;
+	int pow2 = nextPowerOf2(data->at(0).size());
 
-	for (unsigned int r : {1, 5, 10}) {
-		unsigned int runs = r * 0.1 * data->size();
+	cout << "#\t100\t200\t400" << endl;
 
-		chrono::duration<double> t = run_fft(ccr, data, runs, 
-			atoi(argv[1]) == 3 || atoi(argv[1]) == 2);
-		
-		times.push_back(t);
+	// iterate over different array sizes
+	for (int i = 3; i > 0; i--) {
+		vector<chrono::duration<double>> times;
+		// resize
+		for (unsigned int i = 0; i < data->size(); i++) {
+			data->at(i).resize(pow2, 0);
+		}
+		for (unsigned int runs : {100, 200, 400}) {
+			chrono::duration<double> t = run_fft(ccr, data, runs, 
+				atoi(argv[1]) == 3 || atoi(argv[1]) == 2);
+
+			times.push_back(t);
+		}
+
+		all_times[pow2] = times;
+		pow2/=2;
 	}
 
-	// print results
-	cout << type << "\t";
-
-	for (auto it : times) {
-		cout << it.count() << "\t";
+	for (const auto& tlist : all_times) {
+		cout << tlist.first << "\t";
+		for (const auto& t : tlist.second)
+			cout << t.count() << "\t";
+		cout << endl;
 	}
-
 	cout << endl;
-
 	exit(0);
 }
 
@@ -120,15 +113,15 @@ std::chrono::duration<double> run_fft (FourierCCR ccr,
 	bool parallel) {
 	using namespace std;
 
-	chrono::time_point<std::chrono::high_resolution_clock> start, end;
-	// start timer
-	start = chrono::system_clock::now();
 	vector<vector<float>> z(runs, vector<float>());
 
+	// start timer
+	auto start = chrono::system_clock::now();
+	//std::chrono::milliseconds timespan(1000);
 	if (parallel) {
-			#pragma omp parallel
+		#pragma omp parallel
 		{
-				#pragma omp for
+			#pragma omp for
 			for (unsigned int i = 0; i < runs; i++) {
 				vector<float> x(data->at(0)), y(data->at(i));
 				z[i] = ccr.ccr(&x, &y);
@@ -143,10 +136,10 @@ std::chrono::duration<double> run_fft (FourierCCR ccr,
 	}
 
 	// stop timer
-	end = std::chrono::system_clock::now();
+	auto end = std::chrono::system_clock::now();
 
 	std::chrono::duration<double> elapsed_seconds = 
-		std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+	std::chrono::duration_cast<chrono::milliseconds>(end - start);
 
 	return elapsed_seconds;
 }

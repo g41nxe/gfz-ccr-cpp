@@ -1,19 +1,12 @@
 #!/bin/bash
 
-rm -f test.txt
-touch test.txt
+file=benchmark/bench_$(date +%Y%m%d%H%M%S).txt
+rm -f $file
+touch $file
 
-for type in 0 1 2
+for type in -1 0 1 2 3
 do	
-	OUTUT=""
-	for size in 1 2.5 5 10
-	do
-		/usr/bin/time -f%U -otime $1 $type $size
-		OUTPUT+=`cat time`
-		OUTPUT+="\t"
-	done
-	echo -e $OUTPUT >> test.txt
+	OUTPUT=`$1 $type`
+	echo -e $OUTPUT >> $file
 done
-
-rm -f time
 

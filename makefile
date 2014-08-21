@@ -48,8 +48,8 @@ clean:
 
 benchmark:
 	@echo "Running Benchmark..."
-	@for type in 5 0 1 2 3 ; do \
-		./test $$type | tee benchmark/bench_$(NOW).txt; \
+	@for type in 0 1 2 3 ; do \
+		./test $$type | tee -a benchmark/bench_$(NOW).txt; \
 	done
 
 .PHONY: benchmark
