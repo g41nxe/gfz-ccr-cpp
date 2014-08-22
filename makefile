@@ -46,17 +46,35 @@ clean:
 
 .PHONY: clean
 
-benchmark:
-	@echo "Running Benchmark..."
-	@for type in 0 1 2 3 ; do \
-		./test $$type | tee -a benchmark/bench_$(NOW).txt; \
-	done
+benchmark: $(TARGETS)
+	@echo "Running iterative benchmark"
+	./test 0 >> benchmark/ite.txt
+	@echo "Running recursive benchmark"
+	./test 1 >> benchmark/rec.txt
+	@echo "Running omp benchmark"
+	./test 3 >> bennchmark/omp.txt 
+	@echo "Running bruteforce benchmark"
+	./test 4 >> benchmark/bru.txt
 
 .PHONY: benchmark
 
+threadtest: $(TARGETS)
+	@for threads in 4 8 16 32; do \
+		rm -f benchmark/omp_$$threads.txt; \
+		touch benchmark/omp_$$threads.txt; \
+		echo "Running omp benchmark with $$threads threads"; \
+		THREADCOUNT=$$threads; \
+		export THREADCOUNT; \
+		OMP_NUM_THREADS=$$threads; \
+		export OMP_NUM_THREADS; \
+		./test 3 >> benchmark/omp_$$threads.txt; \
+	done
+
+.PHONY: threadtest
+
 gnuplot:
-	@echo "Creating Benchmark Diagram"
-	$(shell cd benchmark; gnuplot gnuplot.plt)
+	@echo "Creating Benchmark Diagrams"
+	$(shell cd benchmark; gnuplot gnuplot.plt; gnuplot gnuplot_8192.plt; gnuplot_threads.plt)
 
 .PHONY: gnuplot
 

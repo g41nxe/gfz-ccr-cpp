@@ -1,15 +1,15 @@
 #!/usr/bin/gnuplot
 
 date = system("date +%F-%H-%M-%S")
-filename = "benchmark-".date.".png"
+filename = "benchmark_threads-".date.".png"
 
 set output filename
 
 set terminal png
 
-set title "fft benchmark for different array sizes and and multiple runs"
+set title "ccr benchmark for multiple thrad counts and array size 8192"
 
-set xlabel "# iterations"
+set xlabel "# cross correlations"
 set ylabel "time (s)"
 
 set key on outside top right
@@ -22,6 +22,10 @@ set style line 2 lc rgb "#104E8B"  lt 1 lw 1.5 ps 1 pi -1  # --- blue
 set style line 3 lc rgb "#CD3333"  lt 1 lw 1.5 ps 1 pi -1  # --- red
 set style line 4 lc rgb "#000000"  lt 1 lw 1.5 ps 1 pi -1  # --- black
 
-plot "bench.txt"  using 1:2 ls 1 pt 5  title "iterative" w lp, \
-     "bench.txt"  using 1:3 ls 2 pt 5  title "recursive" w lp, \
-     "bench.txt"  using 1:5 ls 3 pt 5 title "openmp" w lp, \
+plot "omp_4.txt"  using 1:2 ls 1 pt 7  title "4 threads " w lp, \
+  
+     "omp_8.txt"  using 1:2 ls 2 pt 7  title "8 threads" w lp, \
+     
+     "omp_16.txt" using 1:2 ls 3 pt 7  title "16 threads" w lp, \
+    
+     "omp_32.txt" using 1:2 ls 3 pt 7  title "32 threads" w lp, \

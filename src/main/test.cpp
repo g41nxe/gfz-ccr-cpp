@@ -20,8 +20,11 @@
 
 #define THREADCOUNT 4
 
-std::chrono::duration<double> run_fft (FourierCCR ccr, 
+std::chrono::duration<double> run_fft (FourierCCR, 
 	std::vector<std::vector<float>>*, unsigned int, bool);
+
+std::chrono::duration<double> run_bruteforce (BruteforceCCR, 
+	std::vector<std::vector<float>>*, unsigned int);
 
 int main(int argc, char **argv) {
 	using namespace std;
@@ -31,6 +34,7 @@ int main(int argc, char **argv) {
 
 	string filename("data/dongge_realisations.txt");
 	FourierCCR ccr;
+	BruteforceCCR ccr2;
 	string type;
 
 	switch(atoi(argv[1])) {
@@ -54,6 +58,11 @@ int main(int argc, char **argv) {
 		type = "openMP (iterative)";
 		break;
 
+		case 4: //bruteforce
+		ccr2 = BruteforceCCR();
+		type = "bruteforce";
+		break;
+
 		default:
 		break;
 	}
@@ -73,39 +82,84 @@ int main(int argc, char **argv) {
 	dl.load();
 	vector<vector<float>>* data = dl.getData();
 
-	map<int, vector<chrono::duration<double>>> all_times;
+	map<int, map<int, double>> all_times;
+	
+	// # ccr; max = original dataset size
+	int runs[] = {250, 500, 750, 1000};
+	
+	// array sizes 
+	int sizes[3];
 
-	// do work
+	// next power of 2
 	int pow2 = nextPowerOf2(data->at(0).size());
-
-	cout << "#\t100\t200\t400" << endl;
+	pow2 /= 2;
 
 	// iterate over different array sizes
-	for (int i = 3; i > 0; i--) {
-		vector<chrono::duration<double>> times;
-		// resize
+	for (unsigned int i = 0; i < sizeof(sizes); i++) {
+		// shrink array to; halve the size every rerun
 		for (unsigned int i = 0; i < data->size(); i++) {
 			data->at(i).resize(pow2, 0);
 		}
-		for (unsigned int runs : {100, 200, 400}) {
-			chrono::duration<double> t = run_fft(ccr, data, runs, 
-				atoi(argv[1]) == 3 || atoi(argv[1]) == 2);
+		pow2 /= 2;
 
-			times.push_back(t);
+		// redo different run counts
+		for (unsigned int r : runs) {
+			chrono::duration<double> t;
+
+			if (atoi(argv[1]) == 4) {
+				t = run_bruteforce(ccr2, data, r);
+
+			} else { 
+				t = run_fft(ccr, data, r, 
+					atoi(argv[1]) == 3 || atoi(argv[1]) == 2);
+			}
+			// save timing result	
+			all_times[pow2][r] = t.count();
 		}
-
-		all_times[pow2] = times;
-		pow2/=2;
+		// save array size
+		sizes[i] = pow2;
 	}
 
-	for (const auto& tlist : all_times) {
-		cout << tlist.first << "\t";
-		for (const auto& t : tlist.second)
-			cout << t.count() << "\t";
+	// output
+	cout << "#" << type << "\t";
+	for (int s : sizes)
+		cout << s << "\t";
+	cout << endl;
+
+	for (int r : runs) {
+		cout << r << "\t";
+		for (int s : sizes) {
+			cout << all_times[s][r] << "\t";
+		}
 		cout << endl;
 	}
 	cout << endl;
+
+
 	exit(0);
+}
+
+std::chrono::duration<double> run_bruteforce (BruteforceCCR ccr, 
+	std::vector<std::vector<float>>* data, unsigned int runs) {
+	using namespace std;
+
+	vector<vector<float>> z(runs, vector<float>());
+
+	// start timer
+	auto start = chrono::system_clock::now();
+
+	for (unsigned int i = 0; i < runs; i++) {
+		vector<float> x(data->at(0)), y(data->at(i));
+		z[i] = ccr.ccr(&x, &y);
+	}
+
+	// stop timer
+	auto end = std::chrono::system_clock::now();
+
+	std::chrono::duration<double> elapsed_seconds = 
+	std::chrono::duration_cast<chrono::milliseconds>(end - start);
+
+	return elapsed_seconds;
 }
 
 std::chrono::duration<double> run_fft (FourierCCR ccr, 
@@ -117,7 +171,6 @@ std::chrono::duration<double> run_fft (FourierCCR ccr,
 
 	// start timer
 	auto start = chrono::system_clock::now();
-	//std::chrono::milliseconds timespan(1000);
 	if (parallel) {
 		#pragma omp parallel
 		{
