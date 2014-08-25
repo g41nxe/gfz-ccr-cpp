@@ -43,6 +43,7 @@ clean:
 	@echo "Cleaning..."
 	$(RM) -r $(BUILDDIR) $(TARGETS)
 	$(RM) benchmark/*.txt
+	$(RM) results.tgz
 
 .PHONY: clean
 
@@ -52,7 +53,7 @@ benchmark: $(TARGETS)
 	@echo "Running recursive benchmark"
 	./test 1 >> benchmark/rec.txt
 	@echo "Running omp benchmark"
-	./test 3 >> bennchmark/omp.txt 
+	./test 3 >> benchmark/omp.txt 
 	@echo "Running bruteforce benchmark"
 	./test 4 >> benchmark/bru.txt
 
@@ -78,3 +79,10 @@ gnuplot:
 
 .PHONY: gnuplot
 
+
+pack: 
+	@echo "Packing result files"
+	@$(RM) -f results.tgz
+	tar czf results.tgz benchmark/*.txt
+
+.PHONY: pack

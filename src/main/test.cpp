@@ -92,15 +92,16 @@ int main(int argc, char **argv) {
 
 	// next power of 2
 	int pow2 = nextPowerOf2(data->at(0).size());
-	pow2 /= 2;
 
 	// iterate over different array sizes
-	for (unsigned int i = 0; i < sizeof(sizes); i++) {
+	for (unsigned int i = 0; i < 4; i++) {
+		// save array size
+		sizes[i] = pow2;
+
 		// shrink array to; halve the size every rerun
-		for (unsigned int i = 0; i < data->size(); i++) {
-			data->at(i).resize(pow2, 0);
+		for (unsigned int j = 0; j < data->size(); j++) {
+			data->at(j).resize(pow2, 0);
 		}
-		pow2 /= 2;
 
 		// redo different run counts
 		for (unsigned int r : runs) {
@@ -115,9 +116,8 @@ int main(int argc, char **argv) {
 			}
 			// save timing result	
 			all_times[pow2][r] = t.count();
-		}
-		// save array size
-		sizes[i] = pow2;
+		}	
+		pow2 /= 2;	
 	}
 
 	// output
