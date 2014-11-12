@@ -29,43 +29,10 @@ std::chrono::duration<double> run_bruteforce (BruteforceCCR,
 int main(int argc, char **argv) {
 	using namespace std;
 
-	if (argc < 2)
-		exit(-1);
-
 	string filename("data/dongge_realisations.txt");
 	FourierCCR ccr;
 	BruteforceCCR ccr2;
 	string type;
-
-	switch(atoi(argv[1])) {
-		case 0: // iterative
-		ccr = FourierCCR(new IterativeFFT);
-		type = "Iterative";
-		break;
-		
-		case 1: // recursive
-		ccr = FourierCCR(new RecursiveFFT);
-		type = "Recursive";
-		break;
-		
-		case 2: // openmp (omp)
-		ccr = FourierCCR(new OMPFFT);
-		type = "openMP (openMP)";
-		break;
-		
-		case 3: // openmp (iterative)
-		ccr = FourierCCR(new IterativeFFT);
-		type = "openMP (iterative)";
-		break;
-
-		case 4: //bruteforce
-		ccr2 = BruteforceCCR();
-		type = "bruteforce";
-		break;
-
-		default:
-		break;
-	}
 
 	// init threadcount
 	int thr_cnt;
@@ -81,6 +48,47 @@ int main(int argc, char **argv) {
 	DataLoader dl(filename);
 	dl.load();
 	vector<vector<float>>* data = dl.getData();
+
+	if (argc < 2){
+		cout << "# time series: " << data->size() << endl;
+		cout << "# time series length: " << data->at(0).size() << endl;
+		exit(0);		
+	}
+
+	switch(atoi(argv[1])) {
+		case 0: // iterative
+		ccr = FourierCCR(new IterativeFFT);
+		type = "Iterative";
+		break;
+		
+		case 1: // recursive
+		ccr = FourierCCR(new RecursiveFFT);
+		type = "Recursive";
+		break;
+		
+		case 2: // openmp (fft)
+		ccr = FourierCCR(new OMPFFT);
+		type = "openMP (fft)";
+		break;
+		
+		case 3: // openmp (ccr)
+		ccr = FourierCCR(new IterativeFFT);
+		type = "openMP (ccr)";
+		break;
+
+		case 4: //bruteforce
+		ccr2 = BruteforceCCR();
+		type = "bruteforce";
+		break;
+
+		case 5: // openmp (ccr+fft)
+		ccr = FourierCCR(new OMPFFT);
+		type = "openMP (ccr+fft)";
+		break;
+		
+		default:
+		break;
+	}
 
 	map<int, map<int, double>> all_times;
 	
@@ -112,12 +120,15 @@ int main(int argc, char **argv) {
 
 			} else { 
 				t = run_fft(ccr, data, r, 
-					atoi(argv[1]) == 3 || atoi(argv[1]) == 2);
+					atoi(argv[1]) == 3 || atoi(argv[1]) == 5);
 			}
 			// save timing result	
 			all_times[pow2][r] = t.count();
 		}	
 		pow2 /= 2;	
+
+		if(atoi(argv[1]) == 4)
+			break;
 	}
 
 	// output

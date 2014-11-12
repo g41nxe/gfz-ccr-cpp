@@ -41,10 +41,10 @@ int main(int argc, char **argv) {
 		case 1: // recursive
 			ccr = FourierCCR(new RecursiveFFT);
 			break;
-		case 2: // openmp (iterative fft)
+		case 2: // openmp (openmp fft)
 			ccr = FourierCCR(new OMPFFT);
 			break;
-		case 3: // openmp (openmp fft)
+		case 3: // openmp (iterative fft)
 			ccr = FourierCCR(new IterativeFFT);
 		default:
 			break;

@@ -6,9 +6,11 @@
 
 #include "../math/fft/IterativeFFT.h"
 #include "../math/fft/RecursiveFFT.h"
+#include "../math/fft/OMPFFT.h"
 
 #include "../math/ccr/FourierCCR.h"
 #include "../math/ccr/BruteforceCCR.h"
+
 #include "../io/helpers.h"
 
 int main(int argc, char **argv) {
@@ -24,20 +26,15 @@ int main(int argc, char **argv) {
 
 	FourierCCR iccr(new IterativeFFT);
 	FourierCCR rccr(new RecursiveFFT);
+	FourierCCR occr(new OMPFFT);
 	BruteforceCCR bccr;
-	/*
-	equals(bccr.ccr(x,y), res);
-	cout << "CCR with Bruteforce: ok" << endl;
-	equals(iccr.ccr(x,y), res);
-	cout << "CCR with iterative FFT: ok" << endl;
-	equals(rccr.ccr(x,y), res);
-	cout << "CCR with recursive FFT: ok" << endl;
-	*/
-
+	
 	cout << "Input x: "; print(x); 
 	cout << "Input y: "; print(y);
 	cout << "Expected result: "; print(res);
 	cout << "BruteforceCCR result: "; print(bccr.ccr(&x,&y));
 	cout << "IterativeCCR result: "; print(iccr.ccr(&x,&y));
 	cout << "RecursiveCCR result: "; print(rccr.ccr(&x,&y));
+	cout << "OMPCCR result:"; print(occr.ccr(&x, &y));
+
 }

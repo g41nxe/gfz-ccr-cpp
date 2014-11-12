@@ -75,7 +75,7 @@ threadtest: $(TARGETS)
 
 gnuplot:
 	@echo "Creating Benchmark Diagrams"
-	$(shell cd benchmark; gnuplot gnuplot.plt; gnuplot gnuplot_8192.plt; gnuplot_threads.plt)
+	$(shell cd benchmark; gnuplot gnuplot_array.plt; gnuplot gnuplot.plt; gnuplot gnuplot_8192.plt; gnuplot gnuplot_threads.plt)
 
 .PHONY: gnuplot
 
