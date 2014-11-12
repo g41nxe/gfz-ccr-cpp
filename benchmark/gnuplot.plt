@@ -12,9 +12,9 @@ set title "fft benchmark for different array sizes and and multiple runs"
 set xlabel "# cross correlations"
 set ylabel "time (s)"
 
-set key on outside top right
-#set logscale y
-set xrange [50:350]
+set key on outside top center
+set logscale y
+set xrange [200:1050]
 set bmargin 4
 
 set style line 1 lc rgb "#6B8E23"  lt 1 lw 1.5 ps 1 pi -1  # --- green
