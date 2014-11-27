@@ -24,6 +24,8 @@ public:
 	std::vector<std::complex<float> > mul(
 		std::vector<std::complex<float> >, 
 		std::vector<std::complex<float> >);
+
+	void centerize(std::vector<float>*);
 private:
 	FFTStrategy *fft;
 };

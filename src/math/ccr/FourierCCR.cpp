@@ -54,7 +54,17 @@ std::vector<float> FourierCCR::ccr(std::vector<float> *a, std::vector<float> *b)
 		res.push_back(tmp[i].real());
 	}
 
+	centerize(&res);
+
 	return res;
+}
+
+void FourierCCR::centerize(std::vector<float> *vec) {
+	unsigned int size = vec->size();
+	for (unsigned int i = 0; i < size/2; i++) {
+		std::swap((*vec)[i], (*vec)[size/2+i]);
+	}
+	vec->erase(vec->begin());
 }
 
 void FourierCCR::changeStrategy(FFTStrategy *s) {

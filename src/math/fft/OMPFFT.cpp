@@ -34,14 +34,13 @@
 	assert(FFTStrategy::isPowerOf2(n)); // n must be power of 2
 
 	// permutate data by bit-reversing the log2(n)+1 bits of the indices
-	//#pragma omp parallel for
+	
+	#pragma omp parallel for
 	for (unsigned int i = 0; i < n; i++) {
 		unsigned int rev_i = bit_rev(i, ceil(log2(n)));
 		//swap
 		if (i < rev_i) {
-			complex<float> tmp = (*a)[i];
-			(*a)[i] = (*a)[rev_i];
-			(*a)[rev_i] = tmp;
+			swap((*a)[i], (*a)[rev_i]);
 		}
 	}
 
@@ -68,7 +67,7 @@
 	for (unsigned int s = 1; s <= ceil(log2(n)); s++) {
 		float m = pow(2, s);
 		unsigned int limit = (m / 2) - 1;
-		
+
 		// run all butterfly operations in this stage in parallel
 		#pragma omp for 
 			for (unsigned int j = 0; j <= limit; j++) {
@@ -117,14 +116,23 @@ void OMPFFT::ifft(std::vector<std::complex<float> > *a) {
 	return;
 }
 
-unsigned int OMPFFT::bit_rev(unsigned int num, int count) {
-	unsigned int reverse_num = 0;
-	int i;
-	for (i = 0; i < count; i++) {
-		if ((num & (1 << i)))
-			reverse_num |= 1 << ((count - 1) - i);
-	}
-	return reverse_num;
+unsigned int OMPFFT::bit_rev(unsigned int n, int bits) {
+    unsigned int nrev, N;
+    unsigned int count;  
+    N = 1<<bits;
+
+    count = bits-1;   // initialize the count variable
+    nrev = n;
+    for (n>>=1; n; n>>=1)     {
+        nrev <<= 1;
+        nrev |= n & 1;
+        count--;
+    }
+
+    nrev <<= count;
+    nrev &= N - 1;
+
+    return nrev;
 }
 
 

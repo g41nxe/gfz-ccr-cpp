@@ -7,76 +7,73 @@
 #include <cmath>
 #include <limits>
 
-#include "../math/fft/IterativeFFT.h"
-#include "../math/fft/RecursiveFFT.h"
+#include "../math/ccr/BruteforceCCR.h"
+#include "../math/ccr/FourierCCR.h"
 #include "../math/fft/OMPFFT.h"
 #include "../io/helpers.h"
 
-std::vector<std::complex<float> > mul( std::vector<std::complex<float> > a,
-		std::vector<std::complex<float> > b) {
+std::vector<float> testfunc(unsigned int length, float b) {
+	using namespace std;
 
-	assert(a.size() == b.size());
-	for (unsigned int i = 0; i < a.size(); i++) {
-		a[i] *= b[i];
+	float a = 4.0, c = 0.75;
+
+	vector<float> y;
+
+	for (unsigned int i=0; i < length; i++) {
+		float t = (1.0/length) * i;
+		y.push_back(c * sin(a * M_PI * t + b));
 	}
 
-	return a;
+	return y;
+}
+
+void printarray(std::vector<float> vec) {
+	using namespace std;
+	int t = -vec.size()/2 + 1;
+	for (unsigned int i=0; i < vec.size(); i++){
+		cout << t++ << "\t" << vec[i] << endl;
+	}
+}
+
+
+void printarray(std::vector<std::complex<float>> vec) {
+	using namespace std;
+
+	for (unsigned int i=0; i < vec.size(); i++)
+		cout << vec[i].real() << "\t\t" << vec[i].imag() << endl;
+}
+
+void printarray(std::vector<float> vec, std::vector<float> vec2) {
+	using namespace std;
+
+	assert(vec.size() == vec2.size());
+
+	for (unsigned int i=0; i < vec.size(); i++) {
+		float t = (1.0/vec.size()) * i;
+		cout << i << "\t" << vec[i] << "\t" << vec2[i] << endl;
+	}
 }
 
 int main(int argc, char **argv) {
 	using namespace std;
 	
-	vector<complex<float> > x, y, resx, resy, ccr, tmp;
+	vector<float> x, y, res;
 
-	srand((unsigned) time(0));
+	unsigned int size = 32;
+	x = testfunc(size, 0);
+	y = testfunc(size, 1 * M_PI);
 
-	x.push_back(1.0);
-	x.push_back(2.0);
-	x.push_back(3.0);
-	x.push_back(4.0);
-	x.resize(8, 0);
+	FourierCCR c(new OMPFFT);
+	BruteforceCCR b;
 
-	y.push_back(3.0);
-	y.push_back(2.0);
-	y.push_back(0.0);
-	y.push_back(2.0);
-	y.resize(8, 0);
-
-	resx.push_back(complex<float>(10, 0));
-	resx.push_back(complex<float>(-0.4142, -7.246));
-	resx.push_back(complex<float>(-2, 2));
-	resx.push_back(complex<float>(2.4142, -1.2426));
-	resx.push_back(complex<float>(-2, 0));
-	resx.push_back(complex<float>(2.4142, 1.2426));
-	resx.push_back(complex<float>(-2, -2));
-	resx.push_back(complex<float>(-0.4142, 7.2462));
-
-
-	resy.push_back(7);
-	resy.push_back(3);
-	resy.push_back(-1);
-	resy.push_back(3);
-
-	ccr.push_back(12);
-	ccr.push_back(17);
-	ccr.push_back(12);
-	ccr.push_back(15);
-	ccr.push_back(8);
-	ccr.push_back(4);
-	ccr.push_back(2);
-
-	OMPFFT o;
-	IterativeFFT i;
-
-	cout << "X: ";	print(x);
-	cout << "Expected fft result:\t"; print(resx);
-
-	o.fft(&x);
-	cout << "calculated fft:\t\t"; print(x);
-	o.ifft(&x);
-	cout << "OMP ifft: "; print(x);
+	cout << "# INPUT t X(t) Y(t)" << endl;
+	printarray(x,y);
 	
-	
+	res = c.ccr(new vector<float>(x), new vector<float>(y));
+	cout << endl << endl << "# CCR" << endl;
+	printarray(res);
 
-	
+	res = b.ccr(&x,&y);
+	cout <<  endl << endl << "# BRUTEFORCE" << endl;
+	printarray(res);
 }
